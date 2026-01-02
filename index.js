@@ -7,6 +7,7 @@ const bcrypt=require("bcrypt")
 const mongoose=require('mongoose');
 
 const cloudinary = require("cloudinary").v2;
+app.set("trust proxy", 1);
 
 require('dotenv').config();
 const allowedOrigins=['http://localhost:5173','https://shoponline-or9y.vercel.app']
