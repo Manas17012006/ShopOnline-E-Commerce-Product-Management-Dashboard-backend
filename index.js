@@ -9,7 +9,7 @@ const mongoose=require('mongoose');
 const cloudinary = require("cloudinary").v2;
 
 require('dotenv').config();
-const allowedOrigins=['http://localhost:5173']
+const allowedOrigins=['http://localhost:5173','https://shoponline-or9y.vercel.app']
 app.use(cookieparser());
 app.use(
   cors({
