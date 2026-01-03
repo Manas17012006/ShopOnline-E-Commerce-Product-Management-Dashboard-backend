@@ -75,41 +75,58 @@ const register = async (req, res) => {
 //login
 const login = async (req, res) => {
   const { email, password } = req.body;
+  
   if (!email || !password) {
-    return res.send({ success: false, message: "All fields required" });
+    return res.status(400).json({
+      success: false,
+      message: "All fields required"
+    });
   }
+  
   try {
     const user = await userModel.findOne({ email });
     if (!user) {
-      return res
-        .status(200)
-        .send({ success: false, message: "User Not Found,Register first!" });
+      return res.status(404).json({
+        success: false,
+        message: "User Not Found, Register first!"
+      });
     }
+    
     const isMatch = bcrypt.compareSync(password, user.password);
     if (!isMatch) {
-      return res
-        .status(200)
-        .send({ success: false, message: "Incorrect Password" });
+      return res.status(401).json({
+        success: false,
+        message: "Incorrect Password"
+      });
     }
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
-    user.token=token.toString();
+    
+    // Save token to DB
+    user.token = token;
     await user.save();
-//    res.cookie("token", token, {
-//   httpOnly: true,
-//   secure: true,
-//   sameSite: "none",
-//   maxAge: 7 * 24 * 60 * 60 * 1000,
-// });
-
-    return res.status(201).send({ success: true });
+    
+    // ✅ Return token to frontend
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      token: token,  // Important!
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email
+      }
+    });
+    
   } catch (err) {
-    return res.status(400).send({ success: false, message: err.message });
+    return res.status(500).json({
+      success: false,
+      message: "Server error: " + err.message
+    });
   }
 };
-
 //logout
 const logout = async (req, res) => {
   try {
